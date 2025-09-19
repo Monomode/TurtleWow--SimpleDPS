@@ -1,0 +1,6 @@
+## Interface: 11200
+## Title: SimpleDPS
+## Notes: Minimal DPS tracker (per-ability DPS)
+## SavedVariables: SimpleDPSDB
+
+SimpleDPS.lua
