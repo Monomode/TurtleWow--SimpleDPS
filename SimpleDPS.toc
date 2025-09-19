@@ -1,8 +1,7 @@
-## Interface: 11200
+9## Interface: 11200
 ## Title: SimpleDPS
 ## Notes: Minimal DPS tracker (per-ability DPS)
 ## SavedVariables: SimpleDPSDB
 ## Author: Monomoy
 
-SimpleDPS.xml
 SimpleDPS.lua
