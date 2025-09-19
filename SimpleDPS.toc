@@ -2,6 +2,6 @@
 ## Title: SimpleDPS
 ## Notes: Minimal DPS tracker (per-ability DPS)
 ## SavedVariables: SimpleDPSDB
+## Author: Monomoy
 
 SimpleDPS.lua
-SimpleDPSUI.lua
