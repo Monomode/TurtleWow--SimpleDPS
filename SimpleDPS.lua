@@ -1,8 +1,6 @@
 -- SimpleDPS.lua
--- Tracks DPS per ability and shows it in a frame
-
 local SimpleDPS = CreateFrame("Frame", "SimpleDPSFrame", UIParent)
-SimpleDPS:SetSize(200, 200)
+SimpleDPS:SetSize(200, 220)
 SimpleDPS:SetPoint("CENTER")
 SimpleDPS:SetBackdrop({
     bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -18,23 +16,30 @@ SimpleDPS:SetScript("OnDragStop", SimpleDPS.StopMovingOrSizing)
 
 -- Font string for output
 SimpleDPS.text = SimpleDPS:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-SimpleDPS.text:SetAllPoints()
+SimpleDPS.text:SetPoint("TOPLEFT", 10, -10)
+SimpleDPS.text:SetPoint("BOTTOMRIGHT", -10, 40)
 SimpleDPS.text:SetJustifyH("LEFT")
 
--- Data table
-local damageData = {}
-local fightStart = nil
-
--- Helper to reset fight
-local function StartFight()
+-- Reset button
+SimpleDPS.resetButton = CreateFrame("Button", nil, SimpleDPS, "UIPanelButtonTemplate")
+SimpleDPS.resetButton:SetSize(180, 30)
+SimpleDPS.resetButton:SetPoint("BOTTOM", 0, 5)
+SimpleDPS.resetButton:SetText("Reset DPS")
+SimpleDPS.resetButton:SetScript("OnClick", function()
     damageData = {}
-    fightStart = GetTime()
-end
+    totalTime = 0
+    startTime = nil
+end)
 
--- Combat log event handler
+-- Data tables
+local damageData = {}
+local startTime = nil
+local totalTime = 0
+
+-- Event handler
 SimpleDPS:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-SimpleDPS:RegisterEvent("PLAYER_REGEN_ENABLED") -- leave combat
-SimpleDPS:RegisterEvent("PLAYER_REGEN_DISABLED") -- enter combat
+SimpleDPS:RegisterEvent("PLAYER_REGEN_DISABLED")
+SimpleDPS:RegisterEvent("PLAYER_REGEN_ENABLED")
 
 SimpleDPS:SetScript("OnEvent", function(self, event)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
@@ -42,37 +47,24 @@ SimpleDPS:SetScript("OnEvent", function(self, event)
               sourceGUID, sourceName, sourceFlags, sourceRaidFlags,
               destGUID, destName, destFlags, destRaidFlags,
               spellId, spellName, spellSchool,
-              amount, overkill, school, resisted, blocked, absorbed, critical = CombatLogGetCurrentEventInfo()
-        
-        -- Only track player's damage
+              amount = CombatLogGetCurrentEventInfo()
+
         if sourceName == UnitName("player") and (subevent == "SPELL_DAMAGE" or subevent == "RANGE_DAMAGE" or subevent == "SWING_DAMAGE") then
             if spellName then
                 damageData[spellName] = (damageData[spellName] or 0) + (amount or 0)
+                if not startTime then startTime = GetTime() end
             end
         end
 
     elseif event == "PLAYER_REGEN_DISABLED" then
-        -- Enter combat: start fight
-        StartFight()
-
-    elseif event == "PLAYER_REGEN_ENABLED" then
-        -- Leave combat: could do summary here if desired
+        if not startTime then startTime = GetTime() end
     end
 end)
 
--- OnUpdate: refresh display every 0.5 seconds
+-- OnUpdate: refresh display
 SimpleDPS:SetScript("OnUpdate", function(self, elapsed)
-    if not fightStart then return end
-    local fightTime = math.max(GetTime() - fightStart, 1)
-    local lines = {}
-    for spell, dmg in pairs(damageData) do
-        local dps = dmg / fightTime
-        table.insert(lines, string.format("%-12s %.1f DPS", spell, dps))
-    end
-    -- Sort by DPS descending
-    table.sort(lines, function(a, b)
-        return tonumber(a:match("%s(%d+%.?%d*) DPS")) > tonumber(b:match("%s(%d+%.?%d*) DPS"))
-    end)
+    if not startTime then return end
+    totalTime = GetTime() - startTime
+    if totalTime <= 0 then return end
 
-    SimpleDPS.text:SetText(table.concat(lines, "\n"))
-end)
+    local lines
