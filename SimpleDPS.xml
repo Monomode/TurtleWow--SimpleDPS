@@ -1,6 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
   <Frame name="SimpleDPSFrame" parent="UIParent" movable="true" enableMouse="true" hidden="false">
-    <Size><AbsDimension x="150" y="60"/></Size>
+    <Size><AbsDimension x="200" y="200"/></Size>
     <Anchors>
       <Anchor point="CENTER"/>
     </Anchors>
@@ -11,16 +11,42 @@
       <TileSize><AbsValue val="32"/></TileSize>
       <BackgroundInsets><AbsInset left="5" right="5" top="5" bottom="5"/></BackgroundInsets>
     </Backdrop>
+
+    <!-- Title -->
     <Layers>
       <Layer level="ARTWORK">
-        <FontString name="SimpleDPSText" inherits="GameFontNormalLarge" justifyH="LEFT">
+        <FontString name="SimpleDPSTitle" inherits="GameFontNormalLarge" justifyH="CENTER">
           <Anchors>
-            <Anchor point="TOPLEFT" x="10" y="-10"/>
+            <Anchor point="TOP" x="0" y="-10"/>
           </Anchors>
-          <Text>Damage: 0\nDPS: 0</Text>
+          <Text>Simple DPS</Text>
         </FontString>
       </Layer>
     </Layers>
+
+    <!-- Scrolling list for abilities -->
+    <ScrollFrame name="SimpleDPSScrollFrame" inherits="UIPanelScrollFrameTemplate">
+      <Size><AbsDimension x="170" y="150"/></Size>
+      <Anchors>
+        <Anchor point="TOPLEFT" x="15" y="-30"/>
+      </Anchors>
+      <ScrollChild>
+        <Frame name="SimpleDPSContent">
+          <Size><AbsDimension x="170" y="400"/></Size>
+          <Layers>
+            <Layer level="ARTWORK">
+              <FontString name="SimpleDPSListText" inherits="GameFontHighlightSmall" justifyH="LEFT">
+                <Anchors>
+                  <Anchor point="TOPLEFT"/>
+                </Anchors>
+                <Text>Waiting for combat...</Text>
+              </FontString>
+            </Layer>
+          </Layers>
+        </Frame>
+      </ScrollChild>
+    </ScrollFrame>
+
     <Scripts>
       <OnLoad>
         this:RegisterEvent("PLAYER_REGEN_DISABLED"); <!-- Enter combat -->
