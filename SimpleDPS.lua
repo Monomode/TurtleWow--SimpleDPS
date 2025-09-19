@@ -1,5 +1,5 @@
 -- SimpleDPS.lua
-local SimpleDPS = CreateFrame("Frame", "SimpleDPSFrame", UIParent)
+local SimpleDPS = CreateFrame("Frame", "SimpleDPSFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 SimpleDPS:SetSize(200, 220)
 SimpleDPS:SetPoint("CENTER")
 SimpleDPS:SetBackdrop({
@@ -17,8 +17,8 @@ SimpleDPS:SetScript("OnDragStop", SimpleDPS.StopMovingOrSizing)
 -- Font string for output
 SimpleDPS.text = SimpleDPS:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 SimpleDPS.text:SetPoint("TOPLEFT", 10, -10)
-SimpleDPS.text:SetPoint("BOTTOMRIGHT", -10, 40)
 SimpleDPS.text:SetJustifyH("LEFT")
+SimpleDPS.text:SetWidth(180)  -- ensure text area is visible
 
 -- Reset button
 SimpleDPS.resetButton = CreateFrame("Button", nil, SimpleDPS, "UIPanelButtonTemplate")
@@ -39,8 +39,6 @@ local totalTime = 0
 -- Event handler
 SimpleDPS:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 SimpleDPS:RegisterEvent("PLAYER_REGEN_DISABLED")
-SimpleDPS:RegisterEvent("PLAYER_REGEN_ENABLED")
-
 SimpleDPS:SetScript("OnEvent", function(self, event)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
         local timestamp, subevent, hideCaster,
@@ -55,7 +53,6 @@ SimpleDPS:SetScript("OnEvent", function(self, event)
                 if not startTime then startTime = GetTime() end
             end
         end
-
     elseif event == "PLAYER_REGEN_DISABLED" then
         if not startTime then startTime = GetTime() end
     end
