@@ -67,4 +67,26 @@ SimpleDPS:SetScript("OnUpdate", function(self, elapsed)
     totalTime = GetTime() - startTime
     if totalTime <= 0 then return end
 
-    local lines
+    local lines = {}
+    for spell, dmg in pairs(damageData) do
+        local dps = dmg / totalTime
+        table.insert(lines, string.format("%-12s %.1f DPS", spell, dps))
+    end
+    table.sort(lines, function(a, b)
+        return tonumber(a:match("%s(%d+%.?%d*) DPS")) > tonumber(b:match("%s(%d+%.?%d*) DPS"))
+    end)
+
+    SimpleDPS.text:SetText(table.concat(lines, "\n"))
+end)
+
+-- Slash command to toggle the frame
+SLASH_SIMPLEDPS1 = "/simpledps"
+SlashCmdList["SIMPLEDPS"] = function()
+    if SimpleDPS:IsShown() then
+        SimpleDPS:Hide()
+    else
+        SimpleDPS:Show()
+    end
+end
+
+SimpleDPS:Show()
